@@ -27,7 +27,9 @@ class OrbitFileParser : OrbitBaseVisitor<Any>() {
     fun parse(input: String, packageName: String): CompilationUnit {
 
         val lexer = OrbitLexer(CharStreams.fromString(input))
-        val parser = OrbitParser(CommonTokenStream(lexer))
+        val parser = OrbitParser(CommonTokenStream(lexer)).also {
+            it.addErrorListener(ThrowingErrorListener())
+        }
 
         actors.clear()
         data.clear()

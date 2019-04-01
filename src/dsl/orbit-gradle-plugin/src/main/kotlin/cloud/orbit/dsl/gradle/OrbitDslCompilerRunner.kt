@@ -8,6 +8,7 @@ package cloud.orbit.dsl.gradle
 
 import cloud.orbit.dsl.OrbitFileParser
 import cloud.orbit.dsl.java.OrbitJavaCompiler
+import org.antlr.v4.runtime.misc.ParseCancellationException
 import java.io.File
 
 class OrbitDslCompilerRunner {
@@ -17,7 +18,11 @@ class OrbitDslCompilerRunner {
         }.toMap()
 
         val parsedOrbitFiles = spec.orbitFiles.map {
-            OrbitFileParser().parse(it.readText(), getPackageNameFromFile(inputDirectory.getValue(it), it))
+            try {
+                OrbitFileParser().parse(it.readText(), getPackageNameFromFile(inputDirectory.getValue(it), it))
+            } catch (e: ParseCancellationException) {
+                throw RuntimeException("${it.relativeTo(spec.projectDirectory)}: error: ${e.message}", e)
+            }
         }
 
         OrbitJavaCompiler()
